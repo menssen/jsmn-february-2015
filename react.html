@@ -1,0 +1,90 @@
+<!doctype html>
+<title>React FP Test</title>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/react/0.12.2/react.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/react/0.12.2/JSXTransformer.js"></script>
+
+<div id="content"></div>
+
+<script type="text/jsx">
+  var users = [
+    {
+      fname: 'John',
+      lname: 'Doe',
+      birthdate: 951363573000,
+    },
+    {
+      fname: 'Jeff',
+      lname: 'Johnson',
+      birthdate: 701408373000,
+    },
+    {
+      fname: 'Jane',
+      lname: 'Smith',
+      birthdate: 572672373000,
+    },
+    {
+      fname: 'Julie',
+      lname: 'Rogers',
+      birthdate: 385789173000,
+    },
+    {
+      fname: 'Jackson',
+      lname: 'Nelson',
+      birthdate: 7097973000,
+    },
+  ]
+
+  function UserViewModel(user) {
+    this.birthday = new Date()
+    this.birthday.setTime(user.birthdate)
+
+    this.name = user.fname + ' ' + user.lname
+  }
+
+  function filterUsers(filter) {
+    return users
+      .map(function(user) {
+        return new UserViewModel(user)
+      })
+      .filter(function(uvm) {
+        return !filter || uvm.name.toLowerCase().indexOf(filter) !== -1
+      })
+  }
+
+  var RxUserNode = React.createClass({
+    render: function() {
+      return (
+        <div>{this.props.user.name} &ndash; {this.props.user.birthday}</div>
+      )
+    },
+  })
+
+  var RxUserList = React.createClass({
+    getInitialState: function() {
+      return { users: filterUsers() }
+    },
+    render: function() {
+      var userNodes = this.state.users.map(function(user) {
+        return (
+          <RxUserNode user={user} />
+        )
+      })
+
+      return (
+        <div>
+          <input onChange={this.handleChange} ref="filter" />
+          {userNodes}
+        </div>
+      )
+    },
+    handleChange: function() {
+      this.setState({ users: filterUsers(this.refs.filter.getDOMNode().value) })
+    },
+  })
+
+  React.render(
+    <RxUserList />,
+    document.getElementById('content')
+  )
+
+</script>
