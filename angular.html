@@ -8,7 +8,7 @@
 <div ng-repeat="user in users()">
 
   <span ng-if="!editing">{{ user.name }} &ndash; {{ user.birthday | date:'MM/dd' }}</span>
-  <span ng-if="editing"><input ng-model="user.name"></span>
+  <span ng-if="editing"><input ng-model="user.name" ng-model-options="{ updateOn: 'blur' }"></span>
 
   <a href ng-click="editing = !editing">
     {{ !editing ? 'edit' : 'done' }}
@@ -62,6 +62,8 @@
           if (!userViewModels[userIndex]) {
             userViewModels[userIndex] = new UserViewModel(user)
 
+            var watcherHasRun
+
             $rootScope.$watch(
               function() { return userViewModels[userIndex].name },
               function(val) { 
@@ -80,7 +82,10 @@
                 // End server
                 //
 
-                userViewModels[userIndex] = void 0
+                if (watcherHasRun) {
+                  userViewModels[userIndex] = void 0
+                }
+                watcherHasRun = true
               }
             )
           }
