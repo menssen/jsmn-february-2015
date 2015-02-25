@@ -50,7 +50,10 @@
     $rootScope.users = function() {
       return users
         .map(function(user) {
-          return new UserViewModel(user)
+          if (!user.viewModel) {
+            user.viewModel = new UserViewModel(user)
+          }
+          return user.viewModel
         })
         .filter(function(uvm) {
           return !$rootScope.name || uvm.name.toLowerCase().indexOf($rootScope.name) !== -1
