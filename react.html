@@ -39,6 +39,8 @@
     this.birthday.setTime(user.birthdate)
 
     this.name = user.fname + ' ' + user.lname
+
+    this.user = user
   }
 
   function filterUsers(filter) {
@@ -52,18 +54,58 @@
   }
 
   var RxUserNode = React.createClass({
+    getInitialState: function() {
+      return { editing: false }
+    },
     render: function() {
+      if (this.state.editing) {
+        return (
+          <div><input onChange={this.handleChange} defaultValue={this.props.user.name} ref="editValue" /> <a href='#' onClick={this.stopEditing}>done</a></div>
+        )
+      }
+
       return (
-        <div>{this.props.user.name} &ndash; {this.props.user.birthday}</div>
+        <div>{this.props.user.name} &ndash; {this.props.user.birthday} <a href='#' onClick={this.startEditing}>edit</a></div>
       )
+    },
+    stopEditing: function() {
+      this.setState({ editing: false })
+    },
+    startEditing: function() {
+      this.setState({ editing: true })
+    },
+    handleChange: function() {
+      // 
+      // On the server:
+      // 
+
+      var parts = this.refs.editValue.getDOMNode().value.split(' ')
+      var user = this.props.user.user
+      user.fname = parts[0] || ''
+      user.lname = parts[1] || ''
+
+      user.fname = user.fname.substr(0,1).toUpperCase() + user.fname.substr(1)
+      user.lname = user.lname.substr(0,1).toUpperCase() + user.lname.substr(1)
+
+      //
+      // End server
+      //
+
+      userUpdated()
     },
   })
 
+  var userUpdated
   var RxUserList = React.createClass({
     getInitialState: function() {
       return { users: filterUsers() }
     },
     render: function() {
+      var me = this
+      userUpdated = function() {
+        me.setState({ users: filterUsers(me.refs.filter.getDOMNode().value) })
+      }
+
       var userNodes = this.state.users.map(function(user) {
         return (
           <RxUserNode user={user} />
@@ -78,7 +120,7 @@
       )
     },
     handleChange: function() {
-      this.setState({ users: filterUsers(this.refs.filter.getDOMNode().value) })
+      return userUpdated()
     },
   })
 
