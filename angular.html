@@ -40,6 +40,8 @@
       },
     ]
 
+    var userViewModels = []
+
     function UserViewModel(user) {
       this.birthday = new Date()
       this.birthday.setTime(user.birthdate)
@@ -49,11 +51,12 @@
 
     $rootScope.users = function() {
       return users
-        .map(function(user) {
-          if (!user.viewModel) {
-            user.viewModel = new UserViewModel(user)
+        .map(function(user, userIndex) {
+          if (!userViewModels[userIndex]) {
+            userViewModels[userIndex] = new UserViewModel(user)
           }
-          return user.viewModel
+
+          return userViewModels[userIndex]
         })
         .filter(function(uvm) {
           return !$rootScope.name || uvm.name.toLowerCase().indexOf($rootScope.name) !== -1
