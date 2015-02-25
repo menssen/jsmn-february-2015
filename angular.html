@@ -6,7 +6,14 @@
 <input ng-model="name">
 
 <div ng-repeat="user in users()">
-  {{ user.name }} &ndash; {{ user.birthday | date:'MM/dd' }}
+
+  <span ng-if="!editing">{{ user.name }} &ndash; {{ user.birthday | date:'MM/dd' }}</span>
+  <span ng-if="editing"><input ng-model="user.name"></span>
+
+  <a href ng-click="editing = !editing">
+    {{ !editing ? 'edit' : 'done' }}
+  </a>
+
 </div>
 
 <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular.js"></script>
@@ -54,6 +61,26 @@
         .map(function(user, userIndex) {
           if (!userViewModels[userIndex]) {
             userViewModels[userIndex] = new UserViewModel(user)
+
+            $rootScope.$watch(
+              function() { return userViewModels[userIndex].name },
+              function(val) { 
+                // 
+                // On the server:
+                // 
+
+                var parts = val.split(' ')
+                user.fname = parts[0] || ''
+                user.lname = parts[1] || ''
+
+                user.fname = user.fname.substr(0,1).toUpperCase() + user.fname.substr(1)
+                user.lname = user.lname.substr(0,1).toUpperCase() + user.lname.substr(1)
+
+                //
+                // End server
+                //
+              }
+            )
           }
 
           return userViewModels[userIndex]
